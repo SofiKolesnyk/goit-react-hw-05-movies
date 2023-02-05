@@ -1,37 +1,35 @@
-import { ReactQueryDevtools } from 'react-query/devtools';
 import { Route, Routes } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import s from './App.module.css';
-import Home from './pages/Home/Home';
-import Cast from './pages/Cast';
-import Movies from './pages/Movies';
-import Reviews from './pages/Reviews';
-import MovieDetails from './pages/MovieDetails';
-import NotFound from './pages/NotFound';
-import Header from './common/Header';
-import MoviesSearchValueCtx, { moviesSearchValueCtx } from '../context/MoviesSearchValue/MoviesSearchValueCtx';
+import { lazy, Suspense } from 'react';
 
-const queryClient = new QueryClient();
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+const Layout = lazy(() => import('./Layout/Layout'));
+const Home = lazy(() => import('../pages/Home/Home'));
+const Movies = lazy(() => import('../pages/Movies/Movies'));
+const GetMoviesDetails = lazy(() =>
+  import('../pages/GetMoviesDetails/GetMoviesDetails')
+);
+const Cast = lazy(() => import('../pages/GetMoviesDetails/Cast/Cast'));
+const Reviews = lazy(() => import('../pages/GetMoviesDetails/Reviews/Reviews'));
 
 export const App = () => {
-
   return (
-    <QueryClientProvider client={queryClient}>
-      <MoviesSearchValueCtx value={moviesSearchValueCtx}>
-        <div className={s.container}>
-          <Header />
-          <Routes>
-            <Route path='/' element={<Home />} />
-            <Route path='/movies' element={<Movies />} />
-            <Route path='/movies/:movieId' element={<MovieDetails />}>
-              <Route path={'reviews'} element={<Reviews />} />
-              <Route path={'cast'} element={<Cast />} />
+    <>
+      <Suspense>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="movies" element={<Movies />} />
+            <Route path="movies/:movieId" element={<GetMoviesDetails />}>
+              <Route path="cast" element={<Cast />} />
+              <Route path="reviews" element={<Reviews />} />
             </Route>
-            <Route path='*' element={<NotFound />} />
-          </Routes>
-        </div>
-      </MoviesSearchValueCtx>
-      {/*<ReactQueryDevtools initialIsOpen={false} />*/}
-    </QueryClientProvider>
+          </Route>
+        </Routes>
+      </Suspense>
+
+      <ToastContainer />
+    </>
   );
 };
